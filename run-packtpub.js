@@ -5,14 +5,18 @@ var request     = require('request');
 var cheerio     = require('cheerio');
 var CronJob     = require('cron').CronJob;
 
+var config = {
+  url : 'https://www.packtpub.com/packt/offers/free-learning',
+  cron : '30 8 * * *',
+  timezone : 'Asia/Kuala_Lumpur'
+};
+
 var token = process.env.TGPACKTPUBTOKEN || '';
 var bot   = new TelegramBot(token, {polling: true});
 
 function scrapPacktpub(msg) {
   var sendTo = (msg == null ? process.env.TGIDDEVABS : msg.chat.id);   //Dev@AbS
-  var url    = 'https://www.packtpub.com/packt/offers/free-learning';
-
-  request(url, function(error, response, html) {
+  request(config.url, function(error, response, html) {
     if(!error) {
       var $ = cheerio.load(html);
 
@@ -66,9 +70,9 @@ function scrapPacktpub(msg) {
 }
 
 
-new CronJob('30 8 * * *', function() {
+new CronJob(config.cron, function() {
   scrapPacktpub(null);
-}, null, true, 'Asia/Kuala_Lumpur');
+}, null, true, config.timezone);
 
 bot.onText(/\/packtpub$/i, function (msg, m) {
   scrapPacktpub(msg);

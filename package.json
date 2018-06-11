@@ -3,6 +3,12 @@
   "version": "0.1.1",
   "description": "PACKTpub Free Learning",
   "main": "run-packtpub.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "nyc --reporter=text mocha"
+  },
   "keywords": [
     "telegram",
     "telegram bot",
@@ -12,12 +18,19 @@
   "author": "mohdrafhan <mohdrafhan@yahoo.com>",
   "license": "MIT",
   "dependencies": {
-    "cron": "^1.1.0",
-    "request": "^2.72.0",
-    "request-promise": "^3.0.0",
-    "cheerio": "latest"
+    "cheerio": "^1.0.0-rc.2",
+    "cron": "^1.3.0",
+    "node-telegram-bot-api": "^0.30.0",
+    "request": "^2.87.0",
+    "request-promise": "^3.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "mock-require": "^3.0.2",
+    "nyc": "^12.0.2",
+    "sinon": "^5.1.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/nullifye/packtpub-tg-bot.git"
