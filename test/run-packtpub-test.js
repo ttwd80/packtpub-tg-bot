@@ -2,6 +2,7 @@ const sandbox = require(`sinon`).createSandbox();
 const mocha = require(`mocha`);
 let expect = require("chai").expect;
 let mock = require("mock-require");
+let rewire = require("rewire");
 
 describe(`run-packtpub`, () => {
   before(() => {
@@ -18,10 +19,16 @@ describe(`run-packtpub`, () => {
         onText: telegram_on_text
       };
     };
+    this.mock_cheerio_load = sandbox.stub();
+    this.mock_cheerio = {
+      load : this.mock_cheerio_load
+    };
+    this.mock_cheerio = sandbox.mock(this.mock_cheerio);
     mock("node-telegram-bot-api", this.mock_telegram_bot);
     mock("cron", this.mock_cron);
     mock("request", this.mock_request);
-    require(`../run-packtpub`);
+    mock("cheerio", this.mock_cheerio);
+    this.unit = rewire(`../run-packtpub`);
   });
 
   after(() => {
@@ -61,6 +68,45 @@ describe(`run-packtpub`, () => {
       var callback = this.telegram_on_text.args[0][1];
       callback();
       expect(true).to.equal(true);
+    });
+  });
+  describe(`scrapPacktpub`, () => {
+    before(() => {
+      this.scrapPacktpub = this.unit.__get__("scrapPacktpub");
+    });
+    it("is a function", () => {
+      expect(this.scrapPacktpub).to.be.a("Function");
+    });
+    describe(`request called`, () => {
+      it("was called", () => {
+        this.scrapPacktpub({
+          chat: {
+            id: "telegram-group-name"
+          }
+        });
+        expect(this.mock_request.called).to.equal(true);
+      });
+    });
+    describe(`request callback`, () => {
+      before(()=>{
+        this.scrapPacktpub({
+          chat: {
+            id: "telegram-group-name"
+          }
+        });
+        this.mock_request_callback = this.mock_request.args[0][1];
+      });
+      it("is a function", () => {
+        expect(this.mock_request_callback).to.be.a("Function");
+      });
+      it("with error", () => {
+        this.mock_request_callback(true, null, null);
+        expect(this.mock_cheerio_load.called).to.equal(false);
+      });
+      it("with error", () => {
+        this.mock_request_callback(true, null, null);
+        expect(this.mock_cheerio_load.called).to.equal(false);
+      });
     });
   });
 });
